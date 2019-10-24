@@ -36,6 +36,8 @@ import org.springframework.lang.Nullable;
  * @see RootBeanDefinition
  * @see ChildBeanDefinition
  */
+// GenericBeanDefinition用于一般的Bean定义，它可以动态设置父BeanDefinition(通过设置parentName属性)
+// 它基本取代了原来的ChildBeanDefinition功能
 @SuppressWarnings("serial")
 public class GenericBeanDefinition extends AbstractBeanDefinition {
 

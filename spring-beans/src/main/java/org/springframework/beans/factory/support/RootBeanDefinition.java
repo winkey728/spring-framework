@@ -16,15 +16,6 @@
 
 package org.springframework.beans.factory.support;
 
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Supplier;
-
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -32,6 +23,11 @@ import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+
+import java.lang.reflect.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * A root bean definition represents the merged bean definition that backs
@@ -51,30 +47,39 @@ import org.springframework.util.Assert;
  * @see GenericBeanDefinition
  * @see ChildBeanDefinition
  */
+// RootBeanDefinition一般代表多个BeanDefinition的组合，但也可以用于
+// 单独的BeanDefinition（但更倾向于使用GenericBeanDefinition）
 @SuppressWarnings("serial")
 public class RootBeanDefinition extends AbstractBeanDefinition {
 
+	// 原BeanDefinition，当前RootBeanDefinition是个装饰器
 	@Nullable
 	private BeanDefinitionHolder decoratedDefinition;
 
 	@Nullable
 	private AnnotatedElement qualifiedElement;
 
+	// 是否缓存Bean属性描述(PropertyDescriptor)
 	boolean allowCaching = true;
 
+	// 工厂方法是否唯一，没有被重载
 	boolean isFactoryMethodUnique = false;
 
+	// 当前Bean类型
 	@Nullable
 	volatile ResolvableType targetType;
 
+	// 当前Bean类型的缓存
 	/** Package-visible field for caching the determined Class of a given bean definition. */
 	@Nullable
 	volatile Class<?> resolvedTargetType;
 
+	// 工厂方法返回值的类型缓存
 	/** Package-visible field for caching the return type of a generically typed factory method. */
 	@Nullable
 	volatile ResolvableType factoryMethodReturnType;
 
+	// 工厂方法的缓存
 	/** Package-visible field for caching a unique factory method candidate for introspection. */
 	@Nullable
 	volatile Method factoryMethodToIntrospect;
@@ -82,6 +87,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 	/** Common lock for the four constructor fields below. */
 	final Object constructorArgumentLock = new Object();
 
+	// 用于生成Bean实例的构造器或工厂方法实例
 	/** Package-visible field for caching the resolved constructor or factory method. */
 	@Nullable
 	Executable resolvedConstructorOrFactoryMethod;
@@ -107,12 +113,15 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 	@Nullable
 	volatile Boolean beforeInstantiationResolved;
 
+	// 由Spring内部管理的，注入到当前Bean实例的属性或方法
 	@Nullable
 	private Set<Member> externallyManagedConfigMembers;
 
+	// 由Spring内部管理的，注入到当前Bean实例的初始化方法
 	@Nullable
 	private Set<String> externallyManagedInitMethods;
 
+	// 由Spring内部管理的，注入到当前Bean实例的销毁方法
 	@Nullable
 	private Set<String> externallyManagedDestroyMethods;
 

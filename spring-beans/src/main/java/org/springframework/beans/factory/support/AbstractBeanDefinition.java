@@ -16,14 +16,6 @@
 
 package org.springframework.beans.factory.support;
 
-import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
-
 import org.springframework.beans.BeanMetadataAttributeAccessor;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -36,6 +28,10 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+
+import java.lang.reflect.Constructor;
+import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * Base class for concrete, full-fledged {@link BeanDefinition} classes,
@@ -137,25 +133,33 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	public static final String INFER_METHOD = "(inferred)";
 
 
+	// 实例的Class类型或者Class类型名称
 	@Nullable
 	private volatile Object beanClass;
 
+	// 默认为单例模式
 	@Nullable
 	private String scope = SCOPE_DEFAULT;
 
+	// 是否为抽象类
 	private boolean abstractFlag = false;
 
+	// 默认不延迟初始化
 	private boolean lazyInit = false;
 
+	// 默认不使用自动依赖注入
 	private int autowireMode = AUTOWIRE_NO;
 
+	// 默认不进行依赖检查
 	private int dependencyCheck = DEPENDENCY_CHECK_NONE;
 
 	@Nullable
 	private String[] dependsOn;
 
+	// 默认可作为自动依赖注入候选
 	private boolean autowireCandidate = true;
 
+	// 默认不是优先的自动依赖注入候选
 	private boolean primary = false;
 
 	private final Map<String, AutowireCandidateQualifier> qualifiers = new LinkedHashMap<>();
@@ -163,8 +167,12 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	@Nullable
 	private Supplier<?> instanceSupplier;
 
+	// 是否可以访问非public的构造器和方法
 	private boolean nonPublicAccessAllowed = true;
 
+	// 是否使用宽松的构造器决策，默认使用宽松决策
+	// 实例化当前Bean时，如果使用严格的构造器决策，当找到多个符合的构造器时，会抛出异常；
+	// 如果使用宽松的构造器决策，则会选择最接近的构造器来初始化
 	private boolean lenientConstructorResolution = true;
 
 	@Nullable
@@ -188,12 +196,16 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	@Nullable
 	private String destroyMethodName;
 
+	// 是否必须有初始化方法
 	private boolean enforceInitMethod = true;
 
+	// 是否必须有销毁方法
 	private boolean enforceDestroyMethod = true;
 
+	// 当前Bean实例是否是Spring生成的(非用户定义的)
 	private boolean synthetic = false;
 
+	// 默认为用户定义的实例
 	private int role = BeanDefinition.ROLE_APPLICATION;
 
 	@Nullable
@@ -1061,7 +1073,9 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 * Validate this bean definition.
 	 * @throws BeanDefinitionValidationException in case of validation failure
 	 */
+	// 验证当前BeanDefinition是否合法
 	public void validate() throws BeanDefinitionValidationException {
+		// 不能同时设置方法覆写以及工厂方法。因为工厂方法负责生成新实力，这样方法覆写是没有意义的
 		if (hasMethodOverrides() && getFactoryMethodName() != null) {
 			throw new BeanDefinitionValidationException(
 					"Cannot combine static factory method with method overrides: " +
@@ -1069,6 +1083,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 		}
 
 		if (hasBeanClass()) {
+			// 验证被覆写的方法是否存在
 			prepareMethodOverrides();
 		}
 	}
@@ -1104,6 +1119,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 					"Invalid method override: no method with name '" + mo.getMethodName() +
 					"' on class [" + getBeanClassName() + "]");
 		}
+		// 如果被覆写的方法没有被重载，则不需要检测方法参数，减少开销
+		// 否则在调用时需要检测参数来确定最终调用的方法
 		else if (count == 1) {
 			// Mark override as not overloaded, to avoid the overhead of arg type checking.
 			mo.setOverloaded(false);

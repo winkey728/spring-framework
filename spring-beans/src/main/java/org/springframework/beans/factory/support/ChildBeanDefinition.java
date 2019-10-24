@@ -43,6 +43,10 @@ import org.springframework.util.ObjectUtils;
  * @see GenericBeanDefinition
  * @see RootBeanDefinition
  */
+// 继承父BeanDefinition的大部分设置，除了初始化方法、销毁方法和静态工厂方法，
+// 这3个设置会覆盖父类的设置。
+// 自Spring 2.5开始，更倾向使用GenericBeanDefinition替代ChildBeanDefinition来
+// 注册BeanDefinition。
 @SuppressWarnings("serial")
 public class ChildBeanDefinition extends AbstractBeanDefinition {
 

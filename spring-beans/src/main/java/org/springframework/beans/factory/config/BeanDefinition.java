@@ -44,6 +44,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * <p>Note that extended bean factories might support further scopes.
 	 * @see #setScope
 	 */
+	// 单例
 	String SCOPE_SINGLETON = ConfigurableBeanFactory.SCOPE_SINGLETON;
 
 	/**
@@ -51,6 +52,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * <p>Note that extended bean factories might support further scopes.
 	 * @see #setScope
 	 */
+	// 原型
 	String SCOPE_PROTOTYPE = ConfigurableBeanFactory.SCOPE_PROTOTYPE;
 
 
@@ -58,6 +60,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Role hint indicating that a {@code BeanDefinition} is a major part
 	 * of the application. Typically corresponds to a user-defined bean.
 	 */
+	// 用于设置Bean实例的角色，表示用户定义的Bean实例
 	int ROLE_APPLICATION = 0;
 
 	/**
@@ -69,6 +72,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * {@link org.springframework.beans.factory.parsing.ComponentDefinition},
 	 * but not when looking at the overall configuration of an application.
 	 */
+	// 用于设置Bean实例的角色，表示支持用户配置的Bean实例
 	int ROLE_SUPPORT = 1;
 
 	/**
@@ -77,6 +81,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * used when registering beans that are completely part of the internal workings
 	 * of a {@link org.springframework.beans.factory.parsing.ComponentDefinition}.
 	 */
+	// 用于设置Bean实例的角色，表示Spring内部使用的Bean实例
 	int ROLE_INFRASTRUCTURE = 2;
 
 
@@ -137,6 +142,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * <p>If {@code false}, the bean will get instantiated on startup by bean
 	 * factories that perform eager initialization of singletons.
 	 */
+	// 是否延迟初始化
+	// 如果为false，且Bean是单例时，则会在应用启动时立即由BeanFactory实例化
 	void setLazyInit(boolean lazyInit);
 
 	/**
@@ -149,6 +156,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Set the names of the beans that this bean depends on being initialized.
 	 * The bean factory will guarantee that these beans get initialized first.
 	 */
+	// 设置Bean实例的依赖，Spring会保证优先实例化这些依赖
 	void setDependsOn(@Nullable String... dependsOn);
 
 	/**
@@ -164,6 +172,9 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * if the specified bean is not marked as an autowire candidate. As a consequence,
 	 * autowiring by name will nevertheless inject a bean if the name matches.
 	 */
+	// 设置当前Bean实例是否可作为其他Bean实例的自动依赖注入候选
+	// 这个设置只对基于类型自动依赖注入的方式起作用
+	// 对于基于名称自动依赖注入的方式，Spring始终会自动注入名称匹配的Bean
 	void setAutowireCandidate(boolean autowireCandidate);
 
 	/**
@@ -176,6 +187,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * <p>If this value is {@code true} for exactly one bean among multiple
 	 * matching candidates, it will serve as a tie-breaker.
 	 */
+	// 是否作为自动依赖注入的优先候选者
 	void setPrimary(boolean primary);
 
 	/**
@@ -188,6 +200,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * This the name of the bean to call the specified factory method on.
 	 * @see #setFactoryMethodName
 	 */
+	// 工厂类实例名，用于创建最终的Bean实例
 	void setFactoryBeanName(@Nullable String factoryBeanName);
 
 	/**
@@ -204,6 +217,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * @see #setFactoryBeanName
 	 * @see #setBeanClassName
 	 */
+	// 工厂方法名，用于创建最终的Bean实例
 	void setFactoryMethodName(@Nullable String factoryMethodName);
 
 	/**
@@ -246,6 +260,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Set the name of the initializer method.
 	 * @since 5.1
 	 */
+	// 用于自定义初始化Bean实例的方法名
 	void setInitMethodName(@Nullable String initMethodName);
 
 	/**
@@ -259,6 +274,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * Set the name of the destroy method.
 	 * @since 5.1
 	 */
+	// 用于自定义销毁Bean实例的方法名
 	void setDestroyMethodName(@Nullable String destroyMethodName);
 
 	/**
@@ -337,6 +353,9 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	 * <p>Note that this method returns the immediate originator. Iterate through the
 	 * originator chain to find the original BeanDefinition as defined by the user.
 	 */
+	// 获取原始BeanDefinition
+	// 因为BeanDefinition可能被BeanFactory后置处理器装饰，这个方法就是返回被装饰前的BeanDefinition
+	// 如果被多次装饰，则需要重复调用这个方法(直到返回null)来找到最原始的定义
 	@Nullable
 	BeanDefinition getOriginatingBeanDefinition();
 
