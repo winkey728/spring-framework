@@ -35,6 +35,8 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  * @since 2.5
  * @see org.springframework.beans.factory.config.ConfigurableBeanFactory#getMergedBeanDefinition
  */
+// 用于运行时修改RootBeanDefinition属性的后置处理器
+// 这里的 Merged BeanDefinition 个人理解是指已处理好数据、可直接用于生成Bean实例的BeanDefinition
 public interface MergedBeanDefinitionPostProcessor extends BeanPostProcessor {
 
 	/**

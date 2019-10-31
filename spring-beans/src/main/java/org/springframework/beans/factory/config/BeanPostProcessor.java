@@ -40,6 +40,10 @@ import org.springframework.lang.Nullable;
  * @see ConfigurableBeanFactory#addBeanPostProcessor
  * @see BeanFactoryPostProcessor
  */
+// 后置处理器就是用于修改Bean实例的钩子
+// 如果Bean实例实现了某些 marker interface(例如：Cloneable，Serializable等)，则可以通过实现
+// postProcessBeforeInitialization方法来填充这些接口
+// 如果需要装饰Bean实例，则可以通过实现postProcessAfterInitialization方法返回代理类
 public interface BeanPostProcessor {
 
 	/**
@@ -55,6 +59,8 @@ public interface BeanPostProcessor {
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
 	 */
+	// 这个方法是在所有初始化方法(例如：InitializingBean的afterPropertiesSet方法，自定义初始化方法)执行前
+	// 被调用，这个方法被调用前所有属性已被填充
 	@Nullable
 	default Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		return bean;
@@ -81,6 +87,9 @@ public interface BeanPostProcessor {
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
 	 * @see org.springframework.beans.factory.FactoryBean
 	 */
+	// 这个方法是在所有初始化方法(例如：InitializingBean的afterPropertiesSet方法，自定义初始化方法)后
+	// 被调用，这个方法被调用前所有属性已被填充
+	// 如果Bean实例是一个FactoryBean，则这个方法会在这个FactoryBean和由它生成的实例上调用(即会被调用 >=2 次)
 	@Nullable
 	default Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		return bean;

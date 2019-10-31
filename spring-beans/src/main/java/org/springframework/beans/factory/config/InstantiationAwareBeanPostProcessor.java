@@ -16,11 +16,11 @@
 
 package org.springframework.beans.factory.config;
 
-import java.beans.PropertyDescriptor;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValues;
 import org.springframework.lang.Nullable;
+
+import java.beans.PropertyDescriptor;
 
 /**
  * Subinterface of {@link BeanPostProcessor} that adds a before-instantiation callback,
@@ -44,6 +44,8 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator#setCustomTargetSourceCreators
  * @see org.springframework.aop.framework.autoproxy.target.LazyInitTargetSourceCreator
  */
+// 在普通后置处理器基础上，增加Bean实例化之前和之后、属性填充前的钩子
+// 这个接口通常用于Spring内部，接替原来的Benn实例化，生成代理类或者实现额外的注入策略
 public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 
 	/**
@@ -70,6 +72,8 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * @see org.springframework.beans.factory.support.AbstractBeanDefinition#getBeanClass()
 	 * @see org.springframework.beans.factory.support.AbstractBeanDefinition#getFactoryMethodName()
 	 */
+	// 这个方法在Bean实例化前被调用，可返回代理类实例。传入的beanClass参数可能为Bean自身的类型，也可能为工厂方法的返回类型
+	// 如果这个方法返回非空实例，则Bean创建过程将被缩短，后续只会执行postProcessAfterInitialization钩子
 	@Nullable
 	default Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
 		return null;
@@ -90,6 +94,9 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @see #postProcessBeforeInstantiation
 	 */
+	// 这个方式在Bean实例化后、在属性填充前被调用。这个钩子常用于实现自定义属性注入
+	// 如果返回true，则后续Spring会继续填充属性；如果返回false，则会阻止Spring继续填充属性，以及阻止后续的
+	// InstantiationAwareBeanPostProcessor调用
 	default boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
 		return true;
 	}
@@ -112,6 +119,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * @since 5.1
 	 * @see #postProcessPropertyValues
 	 */
+	// 自Spring 5.1引入的，用以替代原来的postProcessPropertyValues方法
 	@Nullable
 	default PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName)
 			throws BeansException {
@@ -139,6 +147,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	 * @see org.springframework.beans.MutablePropertyValues
 	 * @deprecated as of 5.1, in favor of {@link #postProcessProperties(PropertyValues, Object, String)}
 	 */
+	// 这个方法在属性被真正填充前调用，用以检查依赖或替换属性值
 	@Deprecated
 	@Nullable
 	default PropertyValues postProcessPropertyValues(

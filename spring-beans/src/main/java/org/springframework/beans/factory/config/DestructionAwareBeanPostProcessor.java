@@ -27,6 +27,7 @@ import org.springframework.beans.BeansException;
  * @author Juergen Hoeller
  * @since 1.0.1
  */
+// 增加Bean销毁前的钩子
 public interface DestructionAwareBeanPostProcessor extends BeanPostProcessor {
 
 	/**
@@ -41,6 +42,8 @@ public interface DestructionAwareBeanPostProcessor extends BeanPostProcessor {
 	 * @see org.springframework.beans.factory.DisposableBean#destroy()
 	 * @see org.springframework.beans.factory.support.AbstractBeanDefinition#setDestroyMethodName(String)
 	 */
+	// 在Bean销毁前调用这个方法
+	// 这个方法只会在由Spring容器管理的Bean上调用
 	void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException;
 
 	/**
@@ -54,6 +57,7 @@ public interface DestructionAwareBeanPostProcessor extends BeanPostProcessor {
 	 * be called for this bean instance eventually, or {@code false} if not needed
 	 * @since 4.3
 	 */
+	// 判断指定Bean是否需要执行销毁钩子
 	default boolean requiresDestruction(Object bean) {
 		return true;
 	}
